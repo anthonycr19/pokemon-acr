@@ -4,11 +4,52 @@
 {% block content %}
 
     <p>La URL hija está funcionando!!!</p>
-    <h1>Nombre de Owner: {{ data.nombre }}</h1>
-    <h1>Edad: {{ data.edad }}</h1>
-    <h1>País: {{ data.pais }}</h1>
-    <h1>DNI: {{ data.dni }}</h1>
-    <h1>Vigente: {{ data.vigente }}</h1>
+    {% comment %}    <h1>Nombre de Owner: {{ data.nombre }}</h1>
+        <h1>Edad: {{ data.edad }}</h1>
+        <h1>País: {{ data.pais }}</h1>
+        <h1>DNI: {{ data.dni }}</h1>
+        <h1>Vigente: {{ data.vigente }}</h1>{% endcomment %}
 
+    {% comment %}    {% if data.edad > 18 %}
+            <p>Usted ya es mayor de edad</p>
+        {% else %}
+            <p>Usted todavía no es mayor de edad</p>
+        {% endif %}{% endcomment %}
 
+    {% if data.dni %}
+        {% if not data.vigente %}
+            <p>{{ data.nombre }}, su usuario está por vencer</p>
+        {% endif %}
+    {% endif %}
+
+    {% for owner in data reversed %}
+        <li>
+            <p><strong>Nombre de Owner:</strong> {{ owner.nombre }}</p>
+            <p><strong>Edad:</strong> {{ owner.edad }}</p>
+            <p><strong>País:</strong> {{ owner.pais }}</p>
+        </li>
+    {% endfor %}
+
+    {% for owner in data %}
+        {% if owner.edad and owner.dni %}
+            {# <p><strong>Nombre de Owner:</strong>{{ owner.nombre }}</p> #}
+            <p><strong>Nombre de Owner:</strong> {{ owner.nombre | lower}}</p>
+            <p><strong>Uso del Pipe Slugify (filtros):</strong> {{ owner.nombre | slugify}}</p>
+            <p><strong>Uso del Pipe Upper (filtros):</strong> {{ owner.nombre | upper}}</p>
+            <p><strong>Uso del Pipe Cut (filtros):</strong> {{ owner.nombre | cut:" "}}</p>
+            <p><strong>Edad de Owner:</strong> {{owner.edad}}</p>
+
+            {% if owner.pokemons %}
+                <p>Y tiene los siguientes pokemons:</p> <br>
+                {% for pokemon in owner.pokemons %}
+                    {{ pokemon.nombre_pokemon }}, cant. caracteres: {{ pokemon.nombre_pokemon | length }}
+                    tiene los siguientes ataques:
+                    {% for ataque in pokemon.ataques%}
+                        <br>{{ ataque }}
+                    {% endfor %}
+                {% endfor %}
+
+            {% endif %}
+        {% endif %}
+    {% endfor %}
 {% endblock %}
