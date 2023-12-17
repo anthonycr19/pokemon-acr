@@ -112,5 +112,18 @@ def owner_orm(request):
     query = Q(pais__startswith='Pe') | Q(pais__startswith='Es')
     data_context = Owner.objects.filter(query, edad__lte=30)
 
+    """Error de consulta con Q: cuando no es válido"""
+    #query = Q(pais__startswith='Pe') | Q(pais__startswith='Es')
+    #data_context = Owner.objects.filter(edad__lte=30, query)
+
     return render(request, 'owner_orm.html', context={'data': data_context})
 
+
+def owner_search(request):
+    query = request.GET.get('q', '')
+    print("QUERY: {}".format(query))
+
+    query_c = Q(nombre__icontains=query)
+    data_context = Owner.objects.filter(query_c)
+
+    return render(request, 'owner_search.html', context={'data': data_context, 'query': query})
