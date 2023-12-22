@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.db.models import F, Q
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.core import serializers as ssr
+from django.http import HttpResponse
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -209,6 +211,11 @@ class OwnerDelete(DeleteView):
     success_url = reverse_lazy('owner_list_vc')
     template_name = "owner_confirm_delete.html"
 
+
+def ListOwnerSerializer(request):
+    lista_owner = ssr.serialize('json', Owner.objects.all(), fields=['nombre', 'pais', 'edad', 'dni'])
+
+    return HttpResponse(lista_owner, content_type="application/json")
 
 @api_view(['POST', 'GET'])
 def owner_api_view(request):
