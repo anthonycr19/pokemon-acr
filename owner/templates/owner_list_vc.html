@@ -1,0 +1,29 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+    <h3>Lista de owners registrados (VBC)</h3>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Descripción</th>
+          <th scope="col">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for owner in object_list %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td><p>{{ owner.nombre }} tiene {{ owner.edad }} años y es de {{ owner.pais }}</p></td>
+            <td>
+                <a class="btn btn-primary" href="{% url 'owner_edit_vc' owner.id %}" role="button">Editar</a>
+                <a class="btn btn-danger" href="{% url 'owner_delete_vc' owner.id %}" role="button">Eliminar</a>
+            </td>
+        </tr>
+      {% endfor %}
+
+      </tbody>
+    </table>
+{% endblock %}

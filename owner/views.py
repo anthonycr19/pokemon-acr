@@ -1,6 +1,16 @@
 from django.shortcuts import render
 from django.db.models import F, Q
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from owner.models import Owner
+from owner.forms import OwnerForm
+from owner.serializers import OwnerSerializer
 
 # Create your views here.
 
@@ -127,3 +137,94 @@ def owner_search(request):
     data_context = Owner.objects.filter(query_c)
 
     return render(request, 'owner_search.html', context={'data': data_context, 'query': query})
+
+
+def owner_details(request):
+    """Obtiene todos los owner de tabla correspendiente en la BD"""
+
+    data_context = Owner.objects.all()
+
+    return render(request, 'owner_details.html', context={'data': data_context})
+
+
+def owner_delete(request, id_owner):
+
+    print("ID de owner: {}".format(id_owner))
+    owner = Owner.objects.get(id=id_owner)
+    owner.delete()
+
+    return redirect('owner_details')
+
+
+def owner_edit(request, id_owner):
+    print("ID de owner: {}".format(id_owner))
+
+    owner = Owner.objects.get(id=id_owner)
+    print("Datos del owner a editar: {}".format(owner))
+
+    form = OwnerForm(initial={'nombre': owner.nombre, 'edad': owner.edad, 'pais': owner.pais, 'dni': owner.dni})
+
+    if request.method == 'POST':
+        form = OwnerForm(request.POST, instance=owner)
+
+        if form.is_valid():
+            form.save()
+            return redirect('owner_details')
+    return render(request, 'owner_update.html', context={'data': form})
+
+
+def owner_create(request):
+    form = OwnerForm(request.POST)
+
+    if form.is_valid():
+        form.save()
+        return redirect('owner_details')
+    else:
+        form = OwnerForm()
+
+    return render(request, 'owner_create.html', context={'data': form})
+
+
+class OwnerList(ListView):
+    model = Owner
+    template_name = 'owner_list_vc.html'
+
+
+class OwnerCreate(CreateView):
+    model = Owner
+    form_class = OwnerForm
+    template_name = 'owner_create.html'
+    success_url = reverse_lazy('owner_list_vc')
+
+
+class OwnerUpdate(UpdateView):
+    model = Owner
+    form_class = OwnerForm
+    template_name = 'owner_update_vc.html'
+    success_url = reverse_lazy('owner_list_vc')
+
+
+class OwnerDelete(DeleteView):
+    model = Owner
+    success_url = reverse_lazy('owner_list_vc')
+    template_name = "owner_confirm_delete.html"
+
+
+@api_view(['POST', 'GET'])
+def owner_api_view(request):
+
+    if request.method == 'POST':
+        print("Data OWNER: {}".format(request.data))
+        serializers_class = OwnerSerializer(data=request.data)
+        if serializers_class.is_valid():
+            serializers_class.save()
+            return Response(serializers_class.data, status=status.HTTP_201_CREATED)
+        return Response(serializers_class.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'GET':
+        print("Ingresó a GET")
+        queryset = Owner.objects.all()
+        serializers_class = OwnerSerializer(queryset, many=True)
+
+        return Response(serializers_class.data, status=status.HTTP_200_OK)
+
