@@ -5,7 +5,9 @@ from django.urls import reverse_lazy
 from django.core import serializers as ssr
 from django.http import HttpResponse
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -218,6 +220,7 @@ def ListOwnerSerializer(request):
     return HttpResponse(lista_owner, content_type="application/json")
 
 @api_view(['POST', 'GET'])
+@permission_classes([IsAuthenticated])
 def owner_api_view(request):
 
     if request.method == 'POST':
@@ -237,6 +240,7 @@ def owner_api_view(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
 def owner_details_view(request, pk):
     owner = Owner.objects.filter(id=pk).first()
 
